@@ -149,6 +149,73 @@ The flex capability page gives coverlay εr as 2.9, but JLCPCB's calculator data
 uses 3.9. The flex stack-ups use the calculator value. JLCPCB doesn't offer
 impedance control on flex.
 
+Stiffeners
+----------
+
+JLCPCB bonds stiffeners onto flex boards where they're specified. They aren't part
+of the stack-up files. The values below are also in `data/capabilities.toml`
+under `[flex.stiffener]`.
+
+| Material | Thicknesses | Notes |
+|---|---|---|
+| Polyimide (PI) | 0.10, 0.15, 0.20, 0.225, 0.25 mm | Usual choice behind gold-finger connectors |
+| FR-4 | 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.6 mm | Bonded with adhesive under heat and pressure. Chips easily; JLCPCB advises avoiding it |
+| Stainless steel | 0.10, 0.20, 0.30 mm | Flattest and most rigid, but costs more. Slightly magnetic: keep it away from Hall-effect sensors |
+
+The finished thickness in a stiffened area is the flex thickness plus the
+stiffener thickness. Its tolerance depends on the stiffener:
+
+| Stiffener thickness | Tolerance |
+|---|---|
+| ≤ 0.3 mm | ±0.05 mm |
+| > 0.3 mm to 1.0 mm | ±0.1 mm |
+| > 1.0 mm | ±10 % |
+| Gold-finger area | ±0.03 mm |
+
+Gold-finger connectors are often specified by mating thickness (e.g. 0.3 mm for
+many FFC/FPC sockets). Pick a PI stiffener that brings the flex up to that
+thickness, and check it against the ±0.03 mm tolerance.
+
+Other options:
+
+- **Adhesive tape**, to fix the flex in place after assembly: 3M 9077 (0.05 mm,
+  heat-resistant), 3M 468 (0.13 mm, not heat-resistant), tesa 8854 (0.10 mm,
+  heat-resistant, JLCPCB's recommendation).
+- **EMI shielding film**: 0.018 mm, black. Open the coverlay over ground so the
+  film connects to it.
+- **Panelising**: leave 3 mm between boards with metal stiffeners (2 mm otherwise).
+
+JLCPCB doesn't publish minimum stiffener sizes, clearance from the stiffener edge
+to pads or holes, or overlap with the coverlay. Agree these with JLCPCB for
+tight designs.
+
+### Specifying stiffeners for JLCPCB
+
+1. Draw each stiffener as a filled outline on its own mechanical layer, one
+   layer for the top side and one for the bottom. Export these layers as
+   separate Gerber files.
+2. Next to each outline, outside the board area, note the material and
+   thickness.
+3. Choose the same stiffener options on JLCPCB's order form. JLCPCB doesn't read
+   them from the Gerbers, so the form and the drawing must agree.
+
+### Modelling stiffeners in a rigid-flex stack
+
+For 3D export, you can model stiffened areas as rigid-flex regions in Altium.
+Start from one of the flex stack-ups, then in the Layer Stack Manager:
+
+1. Turn on rigid-flex mode and add a sub-stack for each stiffener build.
+2. In that sub-stack, add a dielectric layer outside the coverlay with the
+   stiffener's thickness, on the side where it is bonded. Name it after the
+   material (e.g. "Stiffener PI 0.20 mm").
+3. In the board planning mode, split the board into regions and assign the
+   stiffener sub-stack to the stiffened regions.
+
+JLCPCB doesn't publish the thickness of the adhesive between the stiffener and
+the flex. The stiffener thickness alone models the finished thickness JLCPCB
+quotes. The sub-stack is only for the 3D model. JLCPCB builds the board from the
+mechanical-layer drawing and the order form, not from the stack-up.
+
 Regenerating
 ------------
 

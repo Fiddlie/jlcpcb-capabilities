@@ -172,3 +172,37 @@ polyimide = 0.050
 copper_oz = 0.5
 finished = 0.12
 
+# Stiffeners (flex only). Not used by the generator; recorded for designers and
+# for rigid-flex sub-stacks drawn by hand. JLCPCB doesn't publish stiffener
+# clearances, minimum sizes or coverlay overlap.
+# Finished thickness in a stiffened area = FPC thickness + stiffener thickness.
+[flex.stiffener]
+pi_thicknesses = [0.10, 0.15, 0.20, 0.225, 0.25]               # Usually behind gold-finger connectors
+fr4_thicknesses = [0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.6]     # Bonded with adhesive under heat and pressure; prone to chipping
+steel_thicknesses = [0.10, 0.20, 0.30]                          # Stainless; flattest, but slightly magnetic
+panel_spacing_metal = 3.0                                       # Panel spacing with metal stiffeners (2 mm otherwise)
+gold_finger_to_edge = 0.20                                      # Gold-finger pad to board edge
+
+# Finished-thickness tolerance in the stiffened area, by stiffener thickness.
+[flex.stiffener.tolerance]
+up_to_0_3 = 0.05                  # Stiffener <= 0.3 mm: +/-0.05 mm
+up_to_1_0 = 0.10                  # 0.3 < stiffener <= 1.0 mm: +/-0.1 mm
+above_1_0_percent = 10            # Stiffener > 1.0 mm: +/-10 %
+gold_finger = 0.03                # Gold-finger area: +/-0.03 mm
+
+# Adhesive tapes, used to fix the FPC in place after assembly (thickness in mm).
+[[flex.stiffener.tapes]]
+name = "3M 9077"
+thickness = 0.05
+heat_resistant = true
+[[flex.stiffener.tapes]]
+name = "3M 468"
+thickness = 0.13
+heat_resistant = false
+[[flex.stiffener.tapes]]
+name = "tesa 8854"
+thickness = 0.10
+heat_resistant = true             # JLCPCB's recommended tape
+
+[flex.emi_shield]
+thickness = 0.018                 # Black shielding film; open the coverlay over ground to connect it
