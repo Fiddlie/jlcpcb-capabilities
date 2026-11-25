@@ -1,0 +1,174 @@
+# JLCPCB manufacturing capabilities used to build the design rules.
+#
+# Every value is in millimetres. Each value is taken from JLCPCB's published
+# capability pages (retrieved 2026-11-24). Where JLCPCB quotes mils, the value
+# is the metric figure JLCPCB gives next to it; where they give only mils, it is
+# rounded up to the next 0.01 mm. Edit this file, then run tools/generate.py.
+#
+# Rigid: https://jlcpcb.com/capabilities/pcb-capabilities
+# Flex:  https://jlcpcb.com/capabilities/flex-pcb-capabilities
+# Stack-ups / impedance: https://jlcpcb.com/impedance
+
+retrieved = "2026-11-24"
+
+# --------------------------------------------------------------------------
+# Rigid FR-4
+# --------------------------------------------------------------------------
+[rigid]
+max_hole = 6.3                    # Drill Diameter: 0.15 - 6.3 mm
+via_annular_ring = 0.05           # Via diameter must be >= hole + 0.1 mm (0.15 preferred)
+smd_pad_to_pad = 0.15             # SMD pad to pad clearance (different nets)
+pad_to_track = 0.10               # Pad to track clearance (1 oz)
+via_hole_to_copper = 0.20         # Via hole to track; inner layer via hole to copper
+npth_to_copper = 0.20             # NPTH to track
+via_hole_to_hole = 0.20           # Via hole-to-hole spacing
+pad_hole_to_hole = 0.45           # Pad hole-to-hole spacing
+board_edge = 0.20                 # Copper to routed board edge / routed slot (V-cut needs 0.4)
+soldermask_expansion = 0.0        # 1:1 soldermask openings supported since the June 2025 LDI upgrade
+silk_to_pad = 0.15                # Pad to silkscreen
+soldermask_dk = 3.8               # Solder mask dielectric constant
+soldermask_thickness = 0.0152     # Coating above trace, C2 = 0.6 mil (impedance page)
+two_layer_core_dk = 4.5           # FR-4 dielectric constant, 2-layer PCB
+
+# Copper-weight dependent values. Keys are finished copper weight in oz.
+# Minimum track width and spacing.
+[rigid.trace_space.two_layer]
+"1" = 0.10
+"2" = 0.16
+[rigid.trace_space.multilayer]
+"0.5" = 0.09                      # Inner layers default to 0.5 oz and use the 1 oz figure
+"1" = 0.09
+"2" = 0.15
+
+# PTH annular ring, absolute minimum (JLCPCB recommends 0.25 mm 2-layer / 0.20 mm multilayer for 1 oz).
+[rigid.pth_annular_ring.two_layer]
+"1" = 0.18
+"2" = 0.254
+[rigid.pth_annular_ring.multilayer]
+"1" = 0.15
+"2" = 0.254
+
+# PTH hole to copper. 2-layer: "PTH to Track" minimum. Multilayer: "Inner layer PTH pad hole to copper".
+[rigid.pth_hole_to_copper]
+two_layer = 0.28
+multilayer = 0.30
+
+# Minimum soldermask bridge (green/red/yellow/blue/purple; black and white need 0.13 mm at 1 oz).
+[rigid.soldermask_bridge]
+"1" = 0.10
+"2" = 0.20
+
+# Via capability tiers. "standard" has no via surcharge on JLCPCB's order form.
+# "advanced" uses JLCPCB's smallest via (0.15/0.25 mm), which costs extra.
+[rigid.via_tiers.standard]
+min_hole = 0.20
+min_diameter = 0.45
+preferred_hole = 0.30
+preferred_diameter = 0.50
+
+[rigid.via_tiers.advanced]
+min_hole = 0.15
+min_diameter = 0.25
+preferred_hole = 0.20
+preferred_diameter = 0.35
+
+# Rule sets to generate: one per layer count x outer copper x inner copper x via tier.
+[[rigid.rulesets]]
+layers = 2
+outer_oz = [1, 2]
+
+[[rigid.rulesets]]
+layers = 4
+outer_oz = [1, 2]
+inner_oz = [0.5, 1, 2]
+
+[[rigid.rulesets]]
+layers = 6
+outer_oz = [1, 2]
+inner_oz = [0.5, 1, 2]
+
+[[rigid.rulesets]]
+layers = 8
+outer_oz = [1, 2]
+inner_oz = [0.5, 1, 2]
+
+# 2-layer stack-ups are built from the published thicknesses: one FR-4 core
+# between the two copper layers (JLCPCB's calculator data for 2-layer boards is
+# a placeholder 1.5 mm core for most thicknesses, so it is not used).
+[rigid.two_layer_stackups]
+thicknesses = [0.4, 0.6, 0.8, 1.0, 1.2, 1.6, 2.0]
+outer_oz = [1, 2]
+
+# --------------------------------------------------------------------------
+# Flexible PCB (polyimide)
+# --------------------------------------------------------------------------
+[flex]
+min_hole = 0.10                   # Hole diameter 0.1 - 6.5 mm
+max_hole = 6.5
+pth_annular_ring = 0.18           # Absolute limit; 0.25 mm recommended
+via_annular_ring = 0.10           # Via diameter >= hole + 0.2 mm
+via_to_track = 0.10               # Via ring to trace
+pad_to_track = 0.15               # Exposed pad to trace
+hole_to_copper = 0.20             # NPTH to copper
+via_hole_to_hole = 0.20           # Not given for flex: "same requirements as rigid PCBs"
+pad_hole_to_hole = 0.45
+board_edge = 0.30                 # Copper to laser-cut outline / slots
+coverlay_expansion = 0.10         # Coverlay opening, one side
+coverlay_bridge = 0.50            # Coverlay bridges narrower than 0.5 mm are removed
+silk_to_pad = 0.15
+coverlay_dk = 2.9                 # Capability page (JLCPCB's calculator data uses 3.9 for coverlay)
+polyimide_dk = 3.3
+
+# Minimum track width and spacing by copper foil (oz): 3/3 mil, 3.5/3.5 mil, 4/4 mil.
+[flex.trace_space]
+"0.33" = 0.08
+"0.5" = 0.09
+"1" = 0.10
+
+[flex.via_tiers.standard]
+min_hole = 0.30
+min_diameter = 0.55
+preferred_hole = 0.30
+preferred_diameter = 0.55
+
+# Extra-cost minimum vias: 0.10/0.30 mm on 2-layer, 0.15/0.35 mm on 4-layer.
+[flex.via_tiers.advanced.2]
+min_hole = 0.10
+min_diameter = 0.30
+preferred_hole = 0.15
+preferred_diameter = 0.40
+[flex.via_tiers.advanced.4]
+min_hole = 0.15
+min_diameter = 0.35
+preferred_hole = 0.20
+preferred_diameter = 0.45
+
+[[flex.rulesets]]
+layers = 1
+copper_oz = [0.5, 1]
+
+[[flex.rulesets]]
+layers = 2
+copper_oz = [0.33, 0.5, 1]
+
+[[flex.rulesets]]
+layers = 4
+copper_oz = [0.33, 0.5, 1]
+
+# 1-layer flex stack-ups are built from the capability page (the calculator has
+# no 1-layer data): coverlay / copper / polyimide, 25 um or 50 um polyimide.
+# Coverlay is PI 12.5 um + adhesive 15 um on 1/3 or 0.5 oz copper, and
+# PI 25 um + adhesive 25 um on 1 oz copper or on 50 um polyimide.
+[[flex.one_layer_stackups]]
+polyimide = 0.025
+copper_oz = 0.5
+finished = 0.07
+[[flex.one_layer_stackups]]
+polyimide = 0.025
+copper_oz = 1
+finished = 0.11
+[[flex.one_layer_stackups]]
+polyimide = 0.050
+copper_oz = 0.5
+finished = 0.12
+
